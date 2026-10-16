@@ -12,7 +12,10 @@ compatibility_date = "2026-10-16"
 enabled = true
 
 # D1 database binding (env.DB).
-# TODO: replace database_name / database_id with the real values before deploy.
+# The placeholders below are intentional: the deploy workflow runs
+# scripts/ensure-d1.mjs, which creates the database (default name "nexus-db",
+# override with D1_DATABASE_NAME) if it doesn't exist and fills in the real
+# name/id for that run. Set real values here to skip auto-provisioning.
 [[d1_databases]]
 binding = "DB"
 database_name = "REPLACE_WITH_D1_NAME"
