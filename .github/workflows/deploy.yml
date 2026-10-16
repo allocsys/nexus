@@ -24,6 +24,12 @@ jobs:
     needs: verify
     runs-on: ubuntu-latest
     environment: production
+    # Deploy credentials: use CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID if
+    # set, otherwise reuse the Worker's CF_API_TOKEN / CF_ACCOUNT_ID secrets.
+    # The token needs Workers edit + D1 edit permissions.
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,23 +37,20 @@ jobs:
       - name: Validate build (wrangler --dry-run)
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy --dry-run
 
       # Creates the D1 database if it doesn't exist yet (no-op otherwise) and
       # patches the binding ids into wrangler.toml for this run only.
       - name: Ensure D1 database
         run: node scripts/ensure-d1.mjs
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ env.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
           # Worker secrets pushed on each deploy. wrangler-action expects NAMES
           # only here; the values come from the step env below.
