@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Static checks (syntax, imports, undefined refs)
+        run: node scripts/verify.mjs
+
+      - name: Install esbuild
+        run: npm install --no-save --no-audit --no-fund esbuild@0.24.0
+
+      - name: Bundle check (esbuild)
+        run: >
+          npx esbuild src/index.js
+          --bundle --format=esm --platform=neutral
+          --external:cloudflare:sockets
+          --outfile=/tmp/nexus-bundle.js
+          --log-level=warning

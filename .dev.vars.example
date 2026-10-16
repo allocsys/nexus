@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local `wrangler dev`. Do not commit .dev.vars.
+ADMIN_SECRET=change-me
+CF_ACCOUNT_ID=change-me
+CF_API_TOKEN=change-me

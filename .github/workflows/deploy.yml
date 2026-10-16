@@ -1,22 +1,32 @@
-name: Deploy Worker
+name: Deploy
 
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
+# Never run two deploys of the same ref at once.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  verify:
+    name: Verify source
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    name: Deploy Worker
+    needs: verify
     runs-on: ubuntu-latest
-    name: Build & Deploy
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Validate build (wrangler --dry-run)
         uses: cloudflare/wrangler-action@v3
@@ -31,8 +41,8 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-          # Pushed to the Worker as encrypted secrets on each deploy.
-          # Values come from GitHub Actions repository secrets.
+          # Worker secrets pushed on each deploy, sourced from repo secrets
+          # (name on its own line, value on the next).
           secrets: |
             ADMIN_SECRET
             ${{ secrets.ADMIN_SECRET }}
