@@ -59,7 +59,8 @@ const HEARTBEAT_LOG_EVERY_N_MSGS = 250;
 // writeDataPoint calls (open/close/pool-failure) without touching the
 // env.ANALYTICS binding itself. Independent of the console.log diagnostics
 // above; this is the queryable-via-SQL side of logging (see handleLogs()).
-const ANALYTICS_DIAG = true;
+// Currently false: the env.ANALYTICS binding is commented out in wrangler.toml.
+const ANALYTICS_DIAG = false;
 // Must match the "dataset" name under [[analytics_engine_datasets]] in wrangler.toml.
 const AE_DATASET = 'nexus_logs';
 // Event-type strings written to blob1 of every AE data point. Centralized
