@@ -21,11 +21,14 @@ binding = "DB"
 database_name = "REPLACE_WITH_D1_NAME"
 database_id = "REPLACE_WITH_D1_ID"
 
-# Analytics Engine binding (env.ANALYTICS). Dataset name must match AE_DATASET
-# in src/config/flags.js.
-[[analytics_engine_datasets]]
-binding = "ANALYTICS"
-dataset = "nexus_logs"
+# Analytics Engine binding (env.ANALYTICS) is DISABLED: the account does not
+# have Analytics Engine enabled, and a binding to it makes deploys fail
+# (Cloudflare error 10089). To re-enable, turn on Analytics Engine in the
+# dashboard, uncomment the block below, and set ANALYTICS_DIAG = true in
+# src/config/flags.js. Dataset name must match AE_DATASET in that file.
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "nexus_logs"
 
 # Proxy-pool health checker (scheduled()). Every 10 minutes.
 [triggers]
