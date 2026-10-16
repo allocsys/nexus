@@ -1,0 +1,29 @@
+# Cloudflare Worker configuration for nexus.
+#
+# Deployed via GitHub Actions (.github/workflows/deploy.yml).
+# Worker secrets (ADMIN_SECRET, CF_ACCOUNT_ID, CF_API_TOKEN) are pushed from
+# GitHub Actions secrets by that workflow — do NOT put them in [vars] here.
+
+name = "nexus"
+main = "src/index.js"
+compatibility_date = "2026-10-16"
+
+[observability]
+enabled = true
+
+# D1 database binding (env.DB).
+# TODO: replace database_name / database_id with the real values before deploy.
+[[d1_databases]]
+binding = "DB"
+database_name = "REPLACE_WITH_D1_NAME"
+database_id = "REPLACE_WITH_D1_ID"
+
+# Analytics Engine binding (env.ANALYTICS). Dataset name must match AE_DATASET
+# in src/config/flags.js.
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "nexus_logs"
+
+# Proxy-pool health checker (scheduled()). Every 10 minutes.
+[triggers]
+crons = ["*/10 * * * *"]
